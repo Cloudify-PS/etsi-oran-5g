@@ -1,0 +1,120 @@
+tosca_definitions_version: cloudify_dsl_1_4
+
+description: >
+  A generic NS blueprint for 5G Service Modelling.
+
+imports:
+  - https://cloudify.co/spec/cloudify/6.4.1/types.yaml
+
+inputs:
+  vnf_type:
+    type: string
+    display_label: VNF Type
+    description: Type of VNF to be deployed
+    default: first_type
+    constraints:
+      - valid_values:
+        - first_type
+        - second_type
+        - third_type
+
+  vl_type:
+    type: string
+    display_label: VL Type
+    description: Type of VL to be deployed
+    default: first_type
+    constraints:
+      - valid_values:
+        - first_type
+        - second_type
+        - third_type
+
+  pnf_type:
+    type: string
+    display_label: PNF Type
+    description: Type of PNF to be deployed
+    default: first_type
+    constraints:
+      - valid_values:
+        - first_type
+        - second_type
+        - third_type
+
+node_templates:
+  virtual_network_function:
+    type: cloudify.nodes.ServiceComponent
+    properties:
+      resource_config:
+        blueprint:
+          external_resource: false
+          id: virtual_network_function
+          blueprint_archive: https://github.com/Cloudify-PS/etsi-oran-5g/archive/refs/heads/main.zip
+          main_file_name: vnf/blueprint.yaml
+        deployment:
+          id: virtual_network_function
+          auto_inc_suffix: false
+          inputs:
+            vnf_type: { get_input: vnf_type }
+
+  virtual_link:
+    type: cloudify.nodes.ServiceComponent
+    properties:
+      resource_config:
+        blueprint:
+          external_resource: false
+          id: virtual_link
+          blueprint_archive: https://github.com/Cloudify-PS/etsi-oran-5g/archive/refs/heads/main.zip
+          main_file_name: vl/blueprint.yaml
+        deployment:
+          id: virtual_link
+          auto_inc_suffix: false
+          inputs:
+            vl_type: { get_input: vl_type }
+    relationships:
+      - type: cloudify.relationships.depends_on
+        target: virtual_network_function
+
+  physical_network_function:
+    type: cloudify.nodes.ServiceComponent
+    properties:
+      resource_config:
+        blueprint:
+          external_resource: false
+          id: physical_network_function
+          blueprint_archive: https://github.com/Cloudify-PS/etsi-oran-5g/archive/refs/heads/main.zip
+          main_file_name: pnf/blueprint.yaml
+        deployment:
+          id: physical_network_function
+          auto_inc_suffix: false
+          inputs:
+            pnf_type: { get_input: pnf_type }
+    relationships:
+      - type: cloudify.relationships.depends_on
+        target: virtual_link
+
+labels:
+  csys-obj-type:
+    values:
+      - environment
+
+capabilities:
+  example_vnf_capability:
+    description: A placeholder for VNF capability
+    value:
+      get_capability:
+        - { get_attribute: [virtual_network_function, deployment, id] }
+        - some_property
+
+  example_vl_capability:
+    description: A placeholder for VL capability
+    value:
+      get_capability:
+        - { get_attribute: [virtual_link, deployment, id] }
+        - some_property
+
+  example_pnf_capability:
+    description: A placeholder for PNF capability
+    value:
+      get_capability:
+        - { get_attribute: [physical_network_function, deployment, id] }
+        - some_property

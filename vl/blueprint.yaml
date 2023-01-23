@@ -1,0 +1,22 @@
+tosca_definitions_version: cloudify_dsl_1_4
+
+description: >
+  A generic VL blueprint for 5G Service Modelling.
+
+imports:
+  - https://cloudify.co/spec/cloudify/6.4.1/types.yaml
+
+inputs:
+  vl_type:
+    type: string
+    display_label: VL Type
+    description: Type of VL to be deployed
+
+node_templates:
+  node_placeholder:
+    type: cloudify.nodes.Root
+
+capabilities:
+  some_property:
+    description: A placeholder for VL capability
+    value: { get_input: vl_type }

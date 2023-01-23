@@ -1,0 +1,22 @@
+tosca_definitions_version: cloudify_dsl_1_4
+
+description: >
+  A generic VNF blueprint for 5G Service Modelling.
+
+imports:
+  - https://cloudify.co/spec/cloudify/6.4.1/types.yaml
+
+inputs:
+  vnf_type:
+    type: string
+    display_label: VNF Type
+    description: Type of VNF to be deployed
+
+node_templates:
+  node_placeholder:
+    type: cloudify.nodes.Root
+
+capabilities:
+  some_property:
+    description: A placeholder for VNF capability
+    value: { get_input: vnf_type }
